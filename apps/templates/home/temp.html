@@ -1,0 +1,21 @@
+<div class="container mt-4">
+    <h2 class="mb-3">Employees Still in Building</h2>
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Full Name</th>
+                <th>Department</th>
+                <th>Date & Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for employee in employees %}
+            <tr>
+                <td>{{ employee.12 }}</td> <!-- Full Name -->
+                <td>{{ employee.13 }}</td> <!-- Department -->
+                <td>{{ employee.2 }}</td> <!-- Date & Time -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

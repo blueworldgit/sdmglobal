@@ -1,0 +1,68 @@
+<nav class="sidenav navbar navbar-vertical  fixed-left  navbar-expand-xs navbar-light bg-white" id="sidenav-main">
+  <div class="scrollbar-inner">
+    <!-- Brand -->
+    <div class="sidenav-header  align-items-center">
+      <a class="navbar-brand" href="/">
+
+
+        <img src="https://www.sdmstructures.com/wp-content/plugins/phastpress/phast.php/c2VydmljZT1pbWFnZXMmc3JjPWh0dHBzJTNBJTJGJTJGd3d3LnNkbXN0cnVjdHVyZXMuY29tJTJGd3AtY29udGVudCUyRnVwbG9hZHMlMkYyMDIxJTJGMDUlMkZTRE1fbG9nby5wbmcmY2FjaGVNYXJrZXI9MTYyMTI1MDY0OC00MzYyMSZ0b2tlbj05OTM5MjIzMzE0NzYxMjVk.q.png" loading="lazy"  class="navbar-brand-img" alt="">
+      </a>
+    </div>
+    <div class="navbar-inner">
+      <!-- Collapse -->
+      <div class="collapse navbar-collapse" id="sidenav-collapse-main">
+        <!-- Nav items -->
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link {% if 'index' in segment %} active {% endif %}" href="/">
+              <i class="ni ni-tv-2 text-primary"></i>
+              <span class="nav-link-text">Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if 'icons' in segment %} active {% endif %}" href="#">
+              <i class="ni ni-planet text-orange"></i>
+              <span class="nav-link-text">Deparments</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if 'map' in segment %} active {% endif %}" href="#">
+              <i class="fas fa-cloud"></i>
+              <span class="nav-link-text">HR</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if 'profile' in segment %} active {% endif %}" href="#">
+              <i class="ni ni-single-02 text-yellow"></i>
+              <span class="nav-link-text">Payroll</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if 'tables' in segment %} active {% endif %}" href="#">
+              <i class="ni ni-bullet-list-67 text-default"></i>
+              <span class="nav-link-text">Reports</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'firedrill' %}">
+              <i class="fas fa-bullhorn text-red"></i>
+              <span class="nav-link-text">Fire Drill</span>
+            </a>
+          </li>
+      
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'logout' %}">
+              <i class="ni ni-user-run text-red"></i>
+              <span class="nav-link-text">Logout</span>
+            </a>
+          </li>            
+        </ul>
+ 
+    
+        <!-- Navigation -->
+       
+      </div>
+    </div>
+  </div>
+</nav>
