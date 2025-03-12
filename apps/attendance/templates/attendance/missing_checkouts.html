@@ -1,0 +1,82 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Tables {% endblock title %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Missing Checkouts</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item active">Missing Checkouts</li>
+    </ol>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-calendar me-1"></i>
+            Select Date
+        </div>
+        <div class="card-body">
+            <form method="get" action="{% url 'missing_checkouts' %}" class="row g-3 align-items-center">
+                <div class="col-auto">
+                    <label for="date" class="col-form-label">Date:</label>
+                </div>
+                <div class="col-auto">
+                    <input type="date" id="date" name="date" value="{{ selected_date|date:'Y-m-d' }}" class="form-control">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">View</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Employees Missing Checkouts on {{ selected_date|date:"F d, Y" }}
+        </div>
+        <div class="card-body">
+            {% if missing_checkouts %}
+                <table id="datatablesSimple" class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Employee ID</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Check-in Time</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>Employee ID</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Check-in Time</th>
+                            <th>Actions</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        {% for checkin in missing_checkouts %}
+                        <tr>
+                            <td>{{ checkin.empid }}</td>
+                            <td>{{ checkin.full_name }}</td>
+                            <td>{{ checkin.department }}</td>
+                            <td>{{ checkin.dateandtime|date:"H:i:s" }}</td>
+                            <td>
+                                <a href="{% url 'create_manual_checkout' empid=checkin.empid date=selected_date|date:'Y-m-d' %}" 
+                                   class="btn btn-sm btn-primary">Add Checkout</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="alert alert-info">
+                    No missing checkouts found for this date.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

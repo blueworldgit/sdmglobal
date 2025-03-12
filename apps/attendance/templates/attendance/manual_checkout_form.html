@@ -1,0 +1,92 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Tables {% endblock title %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Manual Checkout</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'missing_checkouts' %}">Missing Checkouts</a></li>
+        <li class="breadcrumb-item active">Manual Checkout</li>
+    </ol>
+    
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-user me-1"></i>
+                    Employee Details
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <th>Employee ID:</th>
+                            <td>{{ employee.empid }}</td>
+                        </tr>
+                        <tr>
+                            <th>Name:</th>
+                            <td>{{ employee.full_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Department:</th>
+                            <td>{{ employee.department }}</td>
+                        </tr>
+                        <tr>
+                            <th>Check-in Date:</th>
+                            <td>{{ date|date:"F d, Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Check-in Time:</th>
+                            <td>{{ employee.time }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-sign-out-alt me-1"></i>
+                    Add Manual Checkout
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.checkout_time.id_for_label }}" class="form-label">
+                                {{ form.checkout_time.label }}:
+                            </label>
+                            {{ form.checkout_time }}
+                            {% if form.checkout_time.errors %}
+                                <div class="text-danger">
+                                    {{ form.checkout_time.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.reason.id_for_label }}" class="form-label">
+                                {{ form.reason.label }}:
+                            </label>
+                            {{ form.reason }}
+                            {% if form.reason.errors %}
+                                <div class="text-danger">
+                                    {{ form.reason.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">Save Checkout</button>
+                            <a href="{% url 'missing_checkouts' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
