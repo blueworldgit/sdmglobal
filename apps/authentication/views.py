@@ -38,18 +38,20 @@ def register_user(request):
     if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save(commit=False)  # Don't save yet
+            user.is_active = False  # Manually deactivate
+            user.save()  # Now save the user
             username = form.cleaned_data.get("username")
             raw_password = form.cleaned_data.get("password1")
-            user = authenticate(username=username, password=raw_password)
+            user = authenticate(username=username, password=raw_password, is_active=False)
 
-            msg = 'User created - please <a href="/login">login</a>.'
+            msg = 'User created! </br> Please note You will only be able to login after an administrator has activated your account <a href="/login">login</a>.'
             success = True
 
             # return redirect("/login/")
 
         else:
-            msg = 'Form is not valid'
+            msg = 'Invalid SignUp'
     else:
         form = SignUpForm()
 
