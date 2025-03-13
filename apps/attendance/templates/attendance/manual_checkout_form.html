@@ -7,7 +7,11 @@
     <h1 class="mt-4">Manual Checkout</h1>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'missing_checkouts' %}">Missing Checkouts</a></li>
+        <li class="breadcrumb-item">
+            <a href="{% url 'missing_checkouts' %}{% if start_date and end_date %}?start_date={{ start_date }}&end_date={{ end_date }}{% endif %}">
+                Missing Checkouts
+            </a>
+        </li>
         <li class="breadcrumb-item active">Manual Checkout</li>
     </ol>
     
@@ -81,7 +85,7 @@
                         
                         <div class="mt-4">
                             <button type="submit" class="btn btn-primary">Save Checkout</button>
-                            <a href="{% url 'missing_checkouts' %}" class="btn btn-secondary">Cancel</a>
+                            <a href="{% url 'missing_checkouts' %}{% if start_date and end_date %}?start_date={{ start_date }}&end_date={{ end_date }}{% endif %}" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>

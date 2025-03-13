@@ -63,39 +63,81 @@ def firedrill(request):
 
 @login_required
 def missing_checkouts(request):
-    # Get date from request or use today's date
-    date_str = request.GET.get('date')
-    if date_str:
-        try:
-            selected_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-        except ValueError:
-            selected_date = timezone.now().date()
-    else:
-        selected_date = timezone.now().date()
+    # Get start and end dates from request
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
     
-    # Get all check-ins for the selected date
+    # Default to today if no dates provided
+    today = timezone.now().date()
+    
+    # Process start date
+    if start_date_str:
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            start_date = today
+    else:
+        start_date = today
+    
+    # Process end date
+    if end_date_str:
+        try:
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            end_date = today
+    else:
+        end_date = today
+    
+    # Ensure end_date is not before start_date
+    if end_date < start_date:
+        end_date = start_date
+    
+    # Enforce maximum 7-day range
+    max_range = timedelta(days=7)
+    if end_date - start_date > max_range:
+        end_date = start_date + max_range
+        messages.warning(request, "Date range has been limited to 7 days maximum.")
+    
+    # Get all check-ins for the date range
     checkins = Stamps.objects.filter(
-        date=selected_date,
+        date__gte=start_date,
+        date__lte=end_date,
         direction='entry',
         attendance_status='check-in'
-    ).values('empid', 'full_name', 'department', 'dateandtime')
+    ).values('empid', 'full_name', 'department', 'dateandtime', 'date')
     
-    # Get all check-outs for the selected date
-    checkouts = Stamps.objects.filter(
-        date=selected_date,
-        direction='exit',
-        attendance_status='check-out'
-    ).values_list('empid', flat=True)
+    # Organize results by date and employee
+    missing_by_date = {}
     
-    # Find employees who checked in but didn't check out
-    missing_checkouts = []
     for checkin in checkins:
-        if checkin['empid'] not in checkouts:
-            missing_checkouts.append(checkin)
+        # Get checkouts for this employee on the same day
+        date_str = checkin['date'].strftime('%Y-%m-%d')
+        has_checkout = Stamps.objects.filter(
+            empid=checkin['empid'],
+            date=checkin['date'],
+            direction='exit',
+            attendance_status='check-out'
+        ).exists()
+        
+        if not has_checkout:
+            # Store by date for easy displaying
+            if date_str not in missing_by_date:
+                missing_by_date[date_str] = {
+                    'date_obj': checkin['date'],
+                    'formatted_date': checkin['date'].strftime('%A, %B %d, %Y'),
+                    'missing': []
+                }
+            
+            missing_by_date[date_str]['missing'].append(checkin)
+    
+    # Sort dates for display
+    sorted_dates = sorted(missing_by_date.keys())
+    missing_results = [missing_by_date[date] for date in sorted_dates]
     
     context = {
-        'missing_checkouts': missing_checkouts,
-        'selected_date': selected_date,
+        'missing_results': missing_results,
+        'start_date': start_date,
+        'end_date': end_date,
         'title': 'Missing Checkouts',
     }
     return render(request, 'attendance/missing_checkouts.html', context)
@@ -106,16 +148,15 @@ def create_manual_checkout(request, empid, date):
         date_obj = datetime.strptime(date, '%Y-%m-%d').date()
     except ValueError:
         messages.error(request, "Invalid date format.")
-        return redirect('missing_checkouts')
-    
-    # Get the latest check-in for this employee on this date
+        return redirect(reverse('missing_checkouts'))
+
     checkin = get_object_or_404(Stamps, 
         empid=empid,
         date=date_obj,
         direction='entry',
         attendance_status='check-in'
     )
-    
+
     if request.method == 'POST':
         form = ManualCheckoutForm(request.POST)
         if form.is_valid():
@@ -125,14 +166,18 @@ def create_manual_checkout(request, empid, date):
             manual_checkout.checkout_time_only = form.cleaned_data['checkout_time'].time()
             manual_checkout.created_by = request.user
             manual_checkout.save()
-            
+
             messages.success(request, f"Manual checkout created for {checkin.full_name}")
-            return redirect('missing_checkouts')
-    else:
-        # Default time is end of workday (e.g., 5:00 PM)
-       default_time = datetime.combine(date_obj, time(17, 0))  # 5:00 PM
-       form = ManualCheckoutForm(initial={'checkout_time': default_time})
+
+            # Correct redirect with query parameters
+            start_date = request.GET.get('start_date', date)
+            end_date = request.GET.get('end_date', date)
+            return redirect(reverse('missing_checkouts') + f'?start_date={start_date}&end_date={end_date}')
     
+    else:
+        default_time = datetime.combine(date_obj, time(17, 0))  # 5:00 PM
+        form = ManualCheckoutForm(initial={'checkout_time': default_time})
+
     context = {
         'form': form,
         'employee': checkin,
@@ -140,6 +185,5 @@ def create_manual_checkout(request, empid, date):
         'title': 'Create Manual Checkout',
     }
     return render(request, 'attendance/manual_checkout_form.html', context)
-
 
 
